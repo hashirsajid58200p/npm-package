@@ -120,7 +120,9 @@ const FinanceChart = () => {
             tickLine={false}
             tickMargin={20}
           />
-          <Tooltip />
+          <Tooltip
+            contentStyle={{ borderRadius: "10px", borderColor: "lightgray" }}
+          />
           <Legend
             align="center"
             verticalAlign="top"
