@@ -1,21 +1,21 @@
-# Aptus AI Chatbot Widget (`aptus-ai-chatbot`)
+# Aptus AI Chatbot Widget (`aptus-ai-chatbot-widget`)
 
-A highly customizable, secure, and responsive React AI chatbot widget component (`aptus-ai-chatbot`). It enables business owners to easily drop a state-of-the-art AI-driven chatbot widget onto their website by passing a token and API backend endpoint.
+A highly customizable, themeable, secure, and responsive React AI chatbot widget component (`aptus-ai-chatbot-widget`). It enables business owners to easily drop a state-of-the-art AI-driven chatbot widget onto their website by passing a token and API backend endpoint.
 
 ---
 
 ## 📦 Installation
 
 ```bash
-npm install aptus-ai-chatbot
+npm install aptus-ai-chatbot-widget
 ```
 
 Or using yarn / pnpm:
 
 ```bash
-yarn add aptus-ai-chatbot
+yarn add aptus-ai-chatbot-widget
 # or
-pnpm add aptus-ai-chatbot
+pnpm add aptus-ai-chatbot-widget
 ```
 
 ---
@@ -24,7 +24,7 @@ pnpm add aptus-ai-chatbot
 
 ```jsx
 import React from 'react';
-import { ChatBot } from 'aptus-ai-chatbot';
+import { ChatBot } from 'aptus-ai-chatbot-widget';
 
 function App() {
   return (
