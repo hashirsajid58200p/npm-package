@@ -1,9 +1,30 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { TbMessageChatbot } from 'react-icons/tb';
 import { AiOutlineClose } from 'react-icons/ai';
+import { TbMessageChatbot } from 'react-icons/tb';
 import styled, { keyframes } from 'styled-components';
 import Chatbot from './components/chatbot';
 import getChatbotDetails from './utils/getChatbotDetails';
+import { getThemeConfig, ThemeConfig } from './theme';
+
+export type WidgetThemeName = 
+  | 'aptus'
+  | 'boty'
+  | 'chatgpt'
+  | 'compute'
+  | 'crosshaven'
+  | 'studio'
+  | 'energy'
+  | 'smarthome'
+  | 'superdesign'
+  | 'professional'
+  | 'github'
+  | 'dracula'
+  | 'nord'
+  | 'cyberpunk'
+  | 'primary'
+  | 'secondary'
+  | 'tech'
+  | string;
 
 interface AppProps {
   icon?: ReactNode;
@@ -12,9 +33,12 @@ interface AppProps {
   animate?: boolean;
   token: string;
   apiUrl: string;
-  theme?: 'primary' | 'secondary' | 'professional' | 'tech' | '' | undefined;
+  theme?: WidgetThemeName;
   position?: 'left' | 'right';
   wantToShowSuggestions?: boolean;
+  borderRadius?: string | number;
+  toggleBtnRadius?: string | number;
+  fontFamily?: string;
 }
 
 interface ChatbotDetails {
@@ -34,10 +58,10 @@ const bounce = keyframes`
     transform: translateY(0);
   }
   40% {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
   60% {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
   }
 `;
 
@@ -47,65 +71,71 @@ const spin = keyframes`
 `;
 
 // App container
-const AppContainer = styled.div`
-  font-family: 'Outfit', sans-serif;
+const AppContainer = styled.div<{ $fontFamily: string }>`
+  font-family: ${({ $fontFamily }) => $fontFamily};
 `;
 
 // Chatbot Toggle Button
-const ChatbotToggleButton = styled.div<{ $position: string; theme: string; $animate: boolean }>`
+const ChatbotToggleButton = styled.div<{ $position: string; $config: ThemeConfig; $animate: boolean }>`
   position: fixed;
   bottom: 20px;
   ${({ $position }) => ($position === 'left' ? 'left: 20px;' : 'right: 20px;')}
-  font-size: 2em;
+  width: 60px;
+  height: 60px;
+  box-sizing: border-box;
   cursor: pointer;
-  border-radius: 50%;
-  padding: 10px;
+  border-radius: ${({ $config }) => $config.toggleRadius || $config.wrapperRadius};
+  border: ${({ $config }) => $config.toggleBorder || 'none'};
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, background-color 0.3s, color 0.3s;
-  ${({ theme }) => (theme === 'primary' ? 'background-color: #007bff; color: white;' : 
-  theme === 'secondary' ? 'background-color: #343a40; color: white;' :
-  theme === 'professional' ? 'background-color: #004085; color: white;' :
-  theme === 'tech' ? 'background-color: #6c757d; color: white;' : 'background-color: #007bff; color: white;'
-  )}
-  animation: ${(props) => (props.$animate ? bounce : 'none')} 1s infinite;
-  z-index: 999;
+  box-shadow: ${({ $config }) => $config.toggleShadow || '0 4px 12px rgba(0, 0, 0, 0.15)'};
+  background-color: ${({ $config }) => $config.toggleBg};
+  color: ${({ $config }) => $config.toggleColor};
+  transition: transform 0.15s ease-in-out, background-color 0.2s, color 0.2s, box-shadow 0.15s;
+  animation: ${(props) => (props.$animate ? bounce : 'none')} 1.2s infinite;
+  z-index: 99999;
+  
   &:hover {
-    transform: scale(1.1);
+    transform: scale(1.05) translateY(-2px);
+  }
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
-// Chatbot Wrapper
-const ChatbotWrapper = styled.div<{ $show: boolean; $position: string }>`
+// Chatbot Outer Wrapper
+const ChatbotWrapper = styled.div<{ $show: boolean; $position: string; $config: ThemeConfig }>`
   position: fixed;
-  ${({ $position }) => ($position === 'left' ? 'left: 60px;' : 'right: 20px;')}
-  bottom: 80px;
-  width: 350px;
-  height: 500px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-  ${({ $show }) => ($show ? 'opacity: 1; transform: translateY(-10px);' : 'opacity: 0; display: none; transform: translateY(20px);')}
-  z-index: 999;
+  ${({ $position }) => ($position === 'left' ? 'left: 20px;' : 'right: 20px;')}
+  bottom: 96px;
+  width: 360px;
+  height: 520px;
+  background-color: ${({ $config }) => $config.containerBg};
+  border-radius: ${({ $config }) => $config.wrapperRadius};
+  border: ${({ $config }) => $config.wrapperBorder || 'none'};
+  box-shadow: ${({ $config }) => $config.wrapperShadow || '0 12px 30px rgba(0, 0, 0, 0.2)'};
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+  ${({ $show }) => ($show ? 'opacity: 1; transform: translateY(-5px); pointer-events: auto;' : 'opacity: 0; transform: translateY(15px); pointer-events: none;')}
+  z-index: 99998;
+  overflow: hidden;
+
   @media (max-width: 768px) {
     width: 330px;
     height: 80%;
+    bottom: 90px;
   }
 `;
 
 // Loader Component
-const Loader = styled.div<{ theme: string }>`
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid ${({ theme }) => (theme === 'primary' ? '#007bff' : '#343a40')};
+const Loader = styled.div<{ $config: ThemeConfig }>`
+  border: 4px solid ${({ $config }) => $config.inputBorder || '#e0e0e0'};
+  border-top: 4px solid ${({ $config }) => $config.headerBg};
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: ${spin} 1s linear infinite;
-  margin: 150px auto;
-  margin-top: 200px;
+  width: 45px;
+  height: 45px;
+  animation: ${spin} 0.9s linear infinite;
+  margin: 200px auto;
 `;
 
 const App: React.FC<AppProps> = ({
@@ -115,12 +145,17 @@ const App: React.FC<AppProps> = ({
   animate = true,
   token,
   apiUrl,
-  theme = 'primary',
+  theme = 'aptus',
   position = 'right',
   wantToShowSuggestions = false,
+  borderRadius,
+  toggleBtnRadius,
+  fontFamily,
 }) => {
   const [show, setShow] = useState(false);
   const [chatbotDetails, setChatbotDetails] = useState<ChatbotDetails | null>(null);
+
+  const themeConfig = getThemeConfig(theme, borderRadius, toggleBtnRadius, fontFamily);
 
   useEffect(() => {
     const fetchChatbotDetails = async () => {
@@ -138,27 +173,39 @@ const App: React.FC<AppProps> = ({
   }, [token, apiUrl]);
 
   if (!token) {
-    console.error('Valid Token is required');
-    throw new Error('Valid Token is required');
+    console.error('Valid Token is required for Aptus Chatbot');
+    throw new Error('Valid Token is required for Aptus Chatbot');
   }
 
   return (
-    <AppContainer>
+    <AppContainer $fontFamily={themeConfig.fontFamily}>
       <ChatbotToggleButton
         $position={position}
-        theme={theme}
+        $config={themeConfig}
         $animate={!show && animate}
-        style={{ backgroundColor: toggleBtnBgColor, color: toggleBtncolor }}
+        style={{
+          backgroundColor: toggleBtnBgColor || undefined,
+          color: toggleBtncolor || undefined,
+        }}
         onClick={() => setShow(!show)}
       >
-        {show ? <AiOutlineClose /> : icon || <TbMessageChatbot size={45} />}
+        {show ? <AiOutlineClose size={32} /> : icon || <TbMessageChatbot size={32} />}
       </ChatbotToggleButton>
 
-      <ChatbotWrapper $show={show} $position={position}>
+      <ChatbotWrapper $show={show} $position={position} $config={themeConfig}>
         {chatbotDetails ? (
-          <Chatbot chatbotDetails={chatbotDetails} theme={theme} position={position} wantToShowSuggestions={wantToShowSuggestions} apiUrl={apiUrl}/>
+          <Chatbot
+            chatbotDetails={chatbotDetails}
+            theme={theme}
+            position={position}
+            wantToShowSuggestions={wantToShowSuggestions}
+            apiUrl={apiUrl}
+            borderRadius={borderRadius}
+            toggleBtnRadius={toggleBtnRadius}
+            fontFamily={fontFamily}
+          />
         ) : (
-          <Loader theme={theme} />
+          <Loader $config={themeConfig} />
         )}
       </ChatbotWrapper>
     </AppContainer>

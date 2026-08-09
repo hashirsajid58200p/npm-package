@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
-
 import generateSession from "../utils/generateSession";
 import axios from "axios";
-import styled from "styled-components";
-import { keyframes } from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { IoSend } from "react-icons/io5";
+import { TbMessages, TbUser, TbMessageCircleOff } from "react-icons/tb";
+import { RiRobot2Line } from "react-icons/ri";
 import generateSugesstions from "../utils/generateSuggestions";
+import { getThemeConfig, ThemeConfig } from "../theme";
 
 interface Message {
   role: "user" | "bot";
   message: string;
+  isError?: boolean;
 }
 
 interface SessionInterface {
@@ -32,15 +34,21 @@ interface ChatbotProps {
   };
   theme?: string;
   position?: "left" | "right";
-  wantToShowSuggestions?:boolean;
+  wantToShowSuggestions?: boolean;
   apiUrl: string;
+  borderRadius?: string | number;
+  toggleBtnRadius?: string | number;
+  fontFamily?: string;
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({
   chatbotDetails,
-  theme,
-  wantToShowSuggestions=false,
-  apiUrl
+  theme = "aptus",
+  wantToShowSuggestions = false,
+  apiUrl,
+  borderRadius,
+  toggleBtnRadius,
+  fontFamily,
 }) => {
   const [session, setSession] = useState<SessionInterface>({
     started: false,
@@ -48,17 +56,21 @@ const Chatbot: React.FC<ChatbotProps> = ({
     username: "",
     sessionId: "",
   });
+
   const [messages, setMessages] = useState<Message[]>([
-    { role: "bot", message: "Hello! How can I assist you today?" },
+    { role: "bot", message: `Hello! Welcome to ${chatbotDetails?.bussinessName || "Aptus AI Support"}. How can I help you today?` },
   ]);
-  const [suggestions,setSuggestions]=useState<string[]>([]);
-  const [showSuggestions,setShowSuggestions]=useState<boolean>(false);
+
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const [input, setInput] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const themeConfig = getThemeConfig(theme, borderRadius, toggleBtnRadius, fontFamily);
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -68,12 +80,9 @@ const Chatbot: React.FC<ChatbotProps> = ({
   };
 
   let bussinessDetails = "Bussiness Details :";
-
   bussinessDetails += "Bussiness Name : " + chatbotDetails.bussinessName + ",";
-  bussinessDetails +=
-    "Bussiness Category : " + chatbotDetails.bussinessCategory + ",";
-  bussinessDetails +=
-    "Bussiness Description : " + chatbotDetails.bussinessDescription + ",";
+  bussinessDetails += "Bussiness Category : " + chatbotDetails.bussinessCategory + ",";
+  bussinessDetails += "Bussiness Description : " + chatbotDetails.bussinessDescription + ",";
   bussinessDetails += "Questionaries :";
   chatbotDetails.bussinessDetails.forEach((item) => {
     bussinessDetails += item.question + " : " + item.answer + ",";
@@ -85,7 +94,7 @@ const Chatbot: React.FC<ChatbotProps> = ({
 
   const handleSendMessage = async () => {
     setShowSuggestions(false);
-      if (input.trim() !== "" && !loading) {
+    if (input.trim() !== "" && !loading) {
       const updatedMessages: Message[] = [
         ...messages,
         { role: "user", message: input },
@@ -119,53 +128,50 @@ const Chatbot: React.FC<ChatbotProps> = ({
           throw new Error("Failed to get response from AI");
         }
 
-        // Placeholder for the bot message
         const botMessageIndex = updatedMessages.length;
         setMessages((prevMessages) => [
           ...prevMessages,
-          { role: "bot", message: "Typing..." }, // Placeholder while bot is typing
+          { role: "bot", message: "Typing..." },
         ]);
 
-        // Simulate typewriter effect with the response content
         let content = "";
         const typewriterEffect = async (text: string) => {
           for (let i = 0; i < text.length; i++) {
-            await new Promise((resolve) => setTimeout(resolve, 10)); // Adjust delay for typing speed
+            await new Promise((resolve) => setTimeout(resolve, 10));
             content += text.charAt(i);
             setMessages((prevMessages) => [
               ...prevMessages.slice(0, botMessageIndex),
               { role: "bot", message: content },
             ]);
-            scrollToBottom(); // Ensure it scrolls to the latest message
+            scrollToBottom();
           }
         };
-        
+
         setLoading(false);
         await typewriterEffect(res.data.data);
 
-        if(wantToShowSuggestions && (content.includes("sorry") || content.includes("apologize") || content.includes("error") || content.includes("Sorry"))){
+        if (wantToShowSuggestions && (content.includes("sorry") || content.includes("apologize") || content.includes("error") || content.includes("Sorry"))) {
           setShowSuggestions(true);
         } else {
           setShowSuggestions(false);
         }
-
-       
       } catch (error) {
         console.error("Error fetching response:", error);
         setMessages((prevMessages) => [
           ...prevMessages,
-          { role: "bot", message: "Sorry, something went wrong." },
+          { role: "bot", message: "Sorry, something went wrong.", isError: true },
         ]);
       } finally {
         setLoading(false);
         scrollToBottom();
       }
-    }else{
+    } else if (input.trim() === "") {
       alert("Please enter a valid message");
     }
   };
 
-  const handleStartSession = async () => {
+  const handleStartSession = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     if (name.trim() !== "" && email.trim() !== "") {
       try {
@@ -192,7 +198,6 @@ const Chatbot: React.FC<ChatbotProps> = ({
     }
   };
 
-
   useEffect(() => {
     const getSugesstionsList = async () => {
       if (wantToShowSuggestions && showSuggestions) {
@@ -202,34 +207,42 @@ const Chatbot: React.FC<ChatbotProps> = ({
     };
 
     getSugesstionsList();
-  }, [wantToShowSuggestions, showSuggestions, bussinessDetails, apiUrl]); 
-
+  }, [wantToShowSuggestions, showSuggestions, bussinessDetails, apiUrl]);
 
   const handleSugesstionClick = async (sugg: string) => {
-    if (loading) return;  
-    
-    setInput(sugg);  
-    setShowSuggestions(false);  
- 
+    if (loading) return;
+    setInput(sugg);
+    setShowSuggestions(false);
   };
+  useEffect(() => {
+    if (chatbotDetails?.bussinessName) {
+      setMessages((prev) => {
+        if (prev.length === 1 && prev[0].role === "bot" && prev[0].message.startsWith("Hello! Welcome to")) {
+          return [{ role: "bot", message: `Hello! Welcome to ${chatbotDetails.bussinessName}. How can I help you today?` }];
+        }
+        return prev;
+      });
+    }
+  }, [chatbotDetails?.bussinessName]);
 
-  
-  
+  const headerTitle = chatbotDetails?.bussinessName ? `${chatbotDetails.bussinessName}` : "Aptus AI Support";
 
   if (!session.started) {
     return (
-      <ChatbotContainer>
-        <Header theme={theme}>
-          Chat Support
+      <ChatbotContainer $config={themeConfig}>
+        <Header $config={themeConfig}>
+          <AvatarCircle $bg="rgba(255, 255, 255, 0.2)" $color="inherit">
+            <RiRobot2Line size={16} />
+          </AvatarCircle>
+          <span>{headerTitle}</span>
         </Header>
 
-        <FormContainer >
-          <HelpImage
-            src="https://res.cloudinary.com/dvxvf2vxu/image/upload/v1725171366/help_wa1buy.png"
-            alt="Chatbot"
-          />
+        <FormContainer onSubmit={handleStartSession} $config={themeConfig}>
+          <WelcomeContainer $config={themeConfig}>
+            <TbMessages size={80} />
+          </WelcomeContainer>
           <FormInput
-            theme={theme}
+            $config={themeConfig}
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -237,15 +250,15 @@ const Chatbot: React.FC<ChatbotProps> = ({
             required
           />
           <FormInput
-            theme={theme}
+            $config={themeConfig}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your Email"
             required
           />
-          <FormButton theme={theme} disabled={loading} onClick={handleStartSession}>
-            {loading ? "Starting..." : "Start Chat"}
+          <FormButton $config={themeConfig} type="submit" disabled={loading}>
+            {loading ? "STARTING..." : "START CHAT"}
           </FormButton>
         </FormContainer>
       </ChatbotContainer>
@@ -253,34 +266,63 @@ const Chatbot: React.FC<ChatbotProps> = ({
   }
 
   return (
-    <ChatbotContainer>
-      <Header theme={theme}>Chat Support</Header>
-      <MessagesContainer ref={messagesContainerRef}>
+    <ChatbotContainer $config={themeConfig}>
+      <Header $config={themeConfig}>
+        <AvatarCircle $bg="rgba(255, 255, 255, 0.2)" $color="inherit">
+          <RiRobot2Line size={16} />
+        </AvatarCircle>
+        <span>{headerTitle}</span>
+      </Header>
+
+      <MessagesContainer ref={messagesContainerRef} $config={themeConfig}>
         {messages.map((message, index) => (
-          <MessageBubble key={index} theme={theme} role={message.role}>
-            {message.message}
-          </MessageBubble>
+          message.role === "bot" ? (
+            <BotMessageWrapper key={index} $config={themeConfig}>
+              <AvatarCircle $bg="rgba(0, 0, 0, 0.08)" $color={themeConfig.botBubbleColor || '#1a1a1a'}>
+                {message.isError ? (
+                  <TbMessageCircleOff size={16} />
+                ) : (
+                  <RiRobot2Line size={16} />
+                )}
+              </AvatarCircle>
+              <MessageBubble $config={themeConfig} role="bot">
+                {message.message}
+              </MessageBubble>
+            </BotMessageWrapper>
+          ) : (
+            <UserMessageWrapper key={index} $config={themeConfig}>
+              <MessageBubble $config={themeConfig} role="user">
+                {message.message}
+              </MessageBubble>
+              <AvatarCircle $bg={themeConfig.userBubbleBg || '#007bff'} $color={themeConfig.userBubbleColor || '#ffffff'}>
+                <TbUser size={16} />
+              </AvatarCircle>
+            </UserMessageWrapper>
+          )
         ))}
-        {showSuggestions && 
-         (
+        {showSuggestions && (
           <SuggestionsContainer>
-            {
-              suggestions.map(sugg=>(
-                <Suggestion theme={theme} onClick={()=>handleSugesstionClick(sugg)}>
-                  {sugg}
-                </Suggestion>
-              ))
-            }
+            {suggestions.map((sugg, i) => (
+              <Suggestion key={i} $config={themeConfig} onClick={() => handleSugesstionClick(sugg)}>
+                {sugg}
+              </Suggestion>
+            ))}
           </SuggestionsContainer>
-        )
-        
-        }
-        {loading && <MessageBubble theme={theme} role="bot">Typing...</MessageBubble>}
+        )}
+        {loading && (
+          <BotMessageWrapper $config={themeConfig}>
+            <AvatarCircle $bg="rgba(0, 0, 0, 0.08)" $color={themeConfig.botBubbleColor || '#1a1a1a'}>
+              <RiRobot2Line size={16} />
+            </AvatarCircle>
+            <MessageBubble $config={themeConfig} role="bot">Typing...</MessageBubble>
+          </BotMessageWrapper>
+        )}
         <div ref={messagesEndRef} />
       </MessagesContainer>
-      <ChatInputContainer>
+
+      <ChatInputContainer $config={themeConfig}>
         <ChatInput
-          theme={theme}
+          $config={themeConfig}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -289,7 +331,9 @@ const Chatbot: React.FC<ChatbotProps> = ({
           }}
           placeholder="Type a message..."
         />
-        <SendButton theme={theme} onClick={handleSendMessage}><IoSend  color="white" width={200} height={100} size={20}/></SendButton>
+        <SendButton $config={themeConfig} onClick={handleSendMessage}>
+          <IoSend size={18} />
+        </SendButton>
       </ChatInputContainer>
     </ChatbotContainer>
   );
@@ -301,7 +345,7 @@ export default Chatbot;
 
 const slideUp = keyframes`
   from {
-    transform: translateY(20px);
+    transform: translateY(12px);
     opacity: 0;
   }
   to {
@@ -310,345 +354,251 @@ const slideUp = keyframes`
   }
 `;
 
-const ChatbotContainer = styled.div`
+const ChatbotContainer = styled.div<{ $config: ThemeConfig }>`
   width: 100%;
-  max-width: 380px;
   height: 100%;
-  max-height: 500px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: ${({ $config }) => $config.containerBg};
   display: flex;
   flex-direction: column;
-  position: absolute;
-  animation: ${slideUp} 0.3s forwards;
-  font-family: "Outfit", sans-serif;
-  z-index: 9999;
-  transition: transform 0.12s, opacity 0.12s;
-  transform-origin: bottom;
-  
-
-
-
-
-  
-  @media (max-width: 768px) {
-    max-height: 100%;
-  }
+  position: relative;
+  box-sizing: border-box;
+  font-family: ${({ $config }) => $config.fontFamily};
 `;
 
-const Header = styled.div<{ theme?: string }>`
-  background-color: ${(props) =>
-    props.theme === "primary"
-      ? "#007bff"
-      : props.theme === "secondary"
-      ? "#343a40"
-      : props.theme === "professional"
-      ? "#004085"
-      : props.theme === "tech"
-      ? "#6c757d"
-      : "blue"};
-  color: white;
-  padding: 16px;
-  text-align: center;
-  font-size: 1.2em;
-  border-radius: 15px 15px 0 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+const Header = styled.div<{ $config: ThemeConfig }>`
+  background-color: ${({ $config }) => $config.headerBg};
+  color: ${({ $config }) => $config.headerColor};
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.05em;
+  letter-spacing: 0.3px;
+  border-bottom: ${({ $config }) => $config.headerBorderBottom || 'none'};
 
   a {
-    color: white;
+    color: inherit;
     text-decoration: none;
   }
 `;
 
-const FormContainer = styled.form`
+const FormContainer = styled.form<{ $config: ThemeConfig }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
-  padding: 0 10px;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    padding: 0 30px;
-  }
-`;
-
-const HelpImage = styled.img`
-  width: 100%;
-  max-width: 220px;
-  border-radius: 15px;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  margin-bottom: 20px;
-`;
-
-const FormInput = styled.input<{ theme?: string }>`
-  width: 100%;
-  max-width: 300px;
-    font-family: "Outfit", sans-serif;
-   padding: 12px;
-    margin: 10px 0;
-    border-radius: 5px;
-    outline:none;
-  border: 1px solid
-    ${(props) =>
-      props.theme === "primary"
-        ? "#007bff"
-        : props.theme === "secondary"
-        ? "#343a40"
-        : props.theme === "professional"
-        ? "#004085"
-        : props.theme === "tech"
-        ? "#6c757d"
-        : "blue"};
-  font-size: 1em;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    background-color: white !important;
-    color: black !important;
-
-  :focus {
-    outline: none;
-    border:1px solid red;
-     
-  }
-        :placeholder {
-    color: #b3b3b3;
-  }
-    ::placeholder {
-    color: #b3b3b3;
-    }
-`;
-
-const FormButton = styled.button<{ theme?: string }>`
-  background-color: ${(props) =>
-    props.theme === "primary"
-      ? "#007bff"
-      : props.theme === "secondary"
-      ? "#343a40"
-      : props.theme === "professional"
-      ? "#004085"
-      : props.theme === "tech"
-      ? "#6c757d"
-      : "blue"};
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 12px 20px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-
-  :hover {
-    background-color: ${(props) =>
-      props.theme === "primary"
-        ? "#0056b3"
-        : props.theme === "secondary"
-        ? "#23272a"
-        : props.theme === "professional"
-        ? "#00305a"
-        : props.theme === "tech"
-        ? "#5a6268"
-        : "blue"};
-  }
-
-  :disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-
-  :active {
-    transform: scale(0.95);
-  }
-`;
-
-const MessagesContainer = styled.div`
-  flex: 1;
   padding: 20px;
+  box-sizing: border-box;
+  background-color: ${({ $config }) => $config.containerBg};
+`;
+
+const WelcomeContainer = styled.div<{ $config: ThemeConfig }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ $config }) => $config.inputColor || '#333333'};
+  margin-bottom: 16px;
+`;
+
+const FormInput = styled.input<{ $config: ThemeConfig }>`
+  width: 100%;
+  max-width: 280px;
+  font-family: inherit;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border-radius: ${({ $config }) => $config.inputRadius};
+  outline: none;
+  border: ${({ $config }) => $config.inputBorder};
+  font-size: 0.9em;
+  font-weight: 500;
+  background-color: ${({ $config }) => $config.inputBg} !important;
+  color: ${({ $config }) => $config.inputColor} !important;
+
+  &:focus {
+    outline: none;
+    border: ${({ $config }) => $config.inputFocusBorder};
+  }
+
+  ::placeholder {
+    color: #888888;
+  }
+`;
+
+const FormButton = styled.button<{ $config: ThemeConfig }>`
+  background-color: ${({ $config }) => $config.buttonBg};
+  color: ${({ $config }) => $config.buttonColor};
+  border: ${({ $config }) => $config.buttonBorder || 'none'};
+  box-shadow: ${({ $config }) => $config.buttonShadow || 'none'};
+  font-family: inherit;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: ${({ $config }) => $config.buttonRadius};
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 280px;
+  transition: transform 0.15s, background-color 0.15s;
+
+  &:hover {
+    background-color: ${({ $config }) => $config.buttonHoverBg};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const MessagesContainer = styled.div<{ $config: ThemeConfig }>`
+  flex: 1;
+  padding: 16px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  background-color: #f9f9f9;
+  gap: 12px;
+  background-color: ${({ $config }) => $config.messagesBg};
 
-  /* Custom scrollbar styling */
   &::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
+    width: 6px;
   }
-
-  &::-webkit-scrollbar-track {
-    background: #f9f9f9; /* Track color */
-    border-radius: 10px; /* Rounded edges */
-  }
-
   &::-webkit-scrollbar-thumb {
-    background-color: #b0b0b0; /* Thumb color (scroll handle) */
-    border-radius: 10px; /* Rounded thumb */
-    border: 2px solid #f9f9f9; /* Adds space around thumb */
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: #909090; /* Change color on hover */
-  }
-
-  @media (max-width: 768px) {
-    padding: 10px; /* Make padding smaller on mobile */
-    &::-webkit-scrollbar {
-      width: 6px; /* Make scrollbar thinner on smaller screens */
-    }
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
   }
 `;
 
+const AvatarCircle = styled.div<{ $bg?: string; $color?: string }>`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: ${({ $bg }) => $bg || 'rgba(0, 0, 0, 0.08)'};
+  color: ${({ $color }) => $color || 'inherit'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+`;
 
-const MessageBubble = styled.div<{ role: "user" | "bot"; theme?: string }>`
+const BotMessageWrapper = styled.div<{ $config: ThemeConfig }>`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  align-self: flex-start;
+  max-width: 90%;
+  color: ${({ $config }) => $config.botBubbleColor || '#1a1a1a'};
+  animation: ${slideUp} 0.25s ease-out;
+`;
+
+const UserMessageWrapper = styled.div<{ $config: ThemeConfig }>`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  align-self: flex-end;
+  max-width: 90%;
+  color: ${({ $config }) => $config.userBubbleBg || '#007bff'};
+  animation: ${slideUp} 0.25s ease-out;
+`;
+
+const MessageBubble = styled.div<{ role: "user" | "bot"; $config: ThemeConfig }>`
   align-self: ${(props) => (props.role === "user" ? "flex-end" : "flex-start")};
   background-color: ${(props) =>
+    props.role === "user" ? props.$config.userBubbleBg : props.$config.botBubbleBg};
+  color: ${(props) =>
+    props.role === "user" ? props.$config.userBubbleColor : props.$config.botBubbleColor};
+  border: ${(props) =>
     props.role === "user"
-      ? props.theme === "primary"
-        ? "#007bff"
-        : props.theme === "secondary"
-        ? "#343a40"
-        : props.theme === "professional"
-        ? "#004085"
-        : props.theme === "tech"
-        ? "#6c757d"
-        : "#e0e0e0"
-      : "#e0e0e0"};
-  color: ${(props) => (props.role === "user" ? "white" : "black")};
-  padding: 12px 18px;
-  border-radius: 18px;
-  max-width: 80%;
-  animation: ${slideUp} 0.3s ease-out;
+      ? props.$config.userBubbleBorder || 'none'
+      : props.$config.botBubbleBorder || 'none'};
+  padding: 10px 14px;
+  border-radius: ${({ $config }) => $config.bubbleRadius};
+  max-width: ${(props) => (props.role === "user" ? "85%" : "100%")};
+  font-weight: 500;
+  font-size: 0.9em;
+  animation: ${slideUp} 0.25s ease-out;
+  line-height: 1.4;
 `;
 
-const ChatInputContainer = styled.div`
+const ChatInputContainer = styled.div<{ $config: ThemeConfig }>`
   display: flex;
-  padding: 8px 16px;
-  background-color: #f9f9f9;
-  border-top: 1px solid #e0e0e0;
-
-
+  padding: 12px;
+  background-color: ${({ $config }) => $config.inputContainerBg};
+  border-top: ${({ $config }) => $config.inputContainerBorderTop};
 `;
 
-const ChatInput = styled.input<{ theme?: string }>`
+const ChatInput = styled.input<{ $config: ThemeConfig }>`
   flex: 1;
-  border: 1px solid
-    ${(props) =>
-      props.theme === "primary"
-        ? "#007bff"
-        : props.theme === "secondary"
-        ? "#343a40"
-        : props.theme === "professional"
-        ? "#004085"
-        : props.theme === "tech"
-        ? "#6c757d"
-        : "blue"};
+  border: ${({ $config }) => $config.inputBorder};
   padding: 10px;
-  border-radius: 4px;
-  margin-right: 10px;
-  outline:none;
-    font-family: "Outfit", sans-serif;
-    font-weight:500;
-    font-size:0.9em;
+  border-radius: ${({ $config }) => $config.inputRadius};
+  margin-right: 8px;
+  outline: none;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.9em;
+  background-color: ${({ $config }) => $config.inputBg};
+  color: ${({ $config }) => $config.inputColor};
 
-  :focus {
+  &:focus {
     outline: none;
-    border-color: ${(props) =>
-      props.theme === "primary"
-        ? "#007bff"
-        : props.theme === "secondary"
-        ? "#343a40"
-        : props.theme === "professional"
-        ? "#004085"
-        : props.theme === "tech"
-        ? "#6c757d"
-        : "blue"};
-
+    border: ${({ $config }) => $config.inputFocusBorder};
   }
 `;
 
-const SendButton = styled.button<{ theme?: string }>`
-  background-color: ${(props) =>
-    props.theme === "primary"
-      ? "#007bff"
-      : props.theme === "secondary"
-      ? "#343a40"
-      : props.theme === "professional"
-      ? "#004085"
-      : props.theme === "tech"
-      ? "#6c757d"
-      : "blue"};
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 15px;
+const SendButton = styled.button<{ $config: ThemeConfig }>`
+  background-color: ${({ $config }) => $config.buttonBg};
+  color: ${({ $config }) => $config.buttonColor};
+  border: ${({ $config }) => $config.buttonBorder || 'none'};
+  border-radius: ${({ $config }) => $config.buttonRadius};
+  padding: 8px 14px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, background-color 0.15s;
 
-  :hover {
-    background-color: ${(props) =>
-      props.theme === "primary"
-        ? "#0056b3"
-        : props.theme === "secondary"
-        ? "#23272a"
-        : props.theme === "professional"
-        ? "#00305a"
-        : props.theme === "tech"
-        ? "#5a6268"
-        : "blue"};
+  &:hover {
+    background-color: ${({ $config }) => $config.buttonHoverBg};
   }
-
-  :active {
-    transform: scale(0.95);
+  &:active {
+    transform: translateY(1px);
   }
 `;
 
+const SuggestionsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0px;
+  background-color: transparent;
+  max-width: 90%;
+  animation: ${slideUp} 0.25s ease-out;
+`;
 
-const SuggestionsContainer=styled.div`
+const Suggestion = styled.div<{ $config: ThemeConfig }>`
+  background-color: ${({ $config }) => $config.suggestionBg};
+  color: ${({ $config }) => $config.suggestionColor};
+  border: ${({ $config }) => $config.suggestionBorder || 'none'};
+  padding: 8px 12px;
+  border-radius: ${({ $config }) => $config.bubbleRadius};
+  font-size: 0.85em;
+  font-weight: 600;
+  animation: ${slideUp} 0.25s ease-out;
+  cursor: pointer;
+  transition: transform 0.15s;
 
-  display:flex;
-  flex-direction:row;
-  flex-wrap:wrap;
-  gap:10px;
-  padding:0px;
-  background-color:#f9f9f9;
-  border-radius:10px;
-  max-width:90%;
-  animation: ${slideUp} 0.3s ease-out;
-  height:fit-content;
-  max-height:300px;
-`
-
-
-const Suggestion=styled.div<{theme?:string}>`
-  background-color: ${(props) =>
-    props.theme === "primary"
-      ? "#007bff"
-      : props.theme === "secondary"
-      ? "#343a40"
-      : props.theme === "professional"
-      ? "#004085"
-      : props.theme === "tech"
-      ? "#6c757d"
-      : "#e0e0e0"};
-  color: white;
-  padding: 10px 15px;
-  border-radius: 18px;
-  max-width: 80%;
-  font-size:0.9em;
-  animation: ${slideUp} 0.3s ease-out;
-  cursor:pointer;
-   &:hover {
-    transform: translateY(-3px); /* Subtle lift on hover */
-    background-color: ${(props) =>
-      props.theme === "primary"
-        ? "#0056b3"
-        : props.theme === "secondary"
-        ? "#23272b"
-        : props.theme === "professional"
-        ? "#003366"
-        : props.theme === "tech"
-        ? "#5a6268"
-        : "#bdbdbd"};
+  &:hover {
+    transform: translateY(-2px);
   }
-`
+`;

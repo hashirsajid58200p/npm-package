@@ -1,5 +1,5 @@
 {
-  "name": "quickstart-ai-chatbot-widget",
+  "name": "aptus-widget",
   "version": "1.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -52,7 +52,7 @@
   },
   "license": "MIT",
   "description": "A customizable, secure AI Chatbot widget for business websites.",
-  "author": "Muhammad Ahsan",
+  "author": "Hashir Sajid",
   "keywords": [
     "chatbot",
     "react",
