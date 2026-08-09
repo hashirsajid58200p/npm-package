@@ -1,16 +1,25 @@
 {
   "name": "aptus-ai-chatbot",
   "version": "1.0.0",
+  "description": "A customizable, themeable, secure React AI Chatbot widget component for business websites.",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "dev": "vite",
@@ -19,6 +28,16 @@
     "preview": "vite preview",
     "bundle": "tsup src/index.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hashirsajid58200p/Aptus-AI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hashirsajid58200p/Aptus-AI/issues"
+  },
+  "homepage": "https://github.com/hashirsajid58200p/Aptus-AI#readme",
+  "author": "Hashir Sajid",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.7.7",
     "prop-types": "^15.8.1",
@@ -44,47 +63,25 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "postcss": "^8.4.42",
+    "styled-components": "^6.1.13",
     "tailwindcss": "^3.4.10",
     "ts-loader": "^9.5.1",
     "tsup": "^8.5.1",
     "typescript": "^5.6.2",
     "vite": "^5.2.0"
   },
-  "license": "MIT",
-  "description": "A customizable, secure AI Chatbot widget for business websites.",
-  "author": "Hashir Sajid",
   "keywords": [
+    "aptus",
+    "aptus-ai",
     "chatbot",
     "react",
     "typescript",
     "npm",
-    "AI chatbot",
-    "react component",
-    "customer support",
-    "chatbot integration",
-    "business chatbot",
-    "customer service",
-    "automated responses",
-    "react hooks",
-    "styled-components",
-    "tailwindcss",
-    "vite",
-    "open source",
-    "AI",
-    "react chatbot",
-    "frontend",
-    "react development",
-    "react library",
-    "react chatbot component",
-    "react chatbot ui",
-    "react chatbot widget",
-    "simple installtion chatbot",
-    "chatbot for website",
-    "token based chatbot",
-    "chatbot for business",
-    "chatbot for customer service",
-    "chatbot for customer support",
-    "chatbot for customer interaction",
-    "script chatbot"
+    "ai-chatbot",
+    "react-component",
+    "customer-support",
+    "chatbot-widget",
+    "business-chatbot",
+    "styled-components"
   ]
 }
