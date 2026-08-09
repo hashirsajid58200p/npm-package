@@ -19,7 +19,7 @@ function App() {
     <div>
       <ChatBot 
         token="YOUR_BUSINESS_TOKEN" 
-        apiUrl="https://quick-start-ai-backend.vercel.app/api/v1"
+        apiUrl="https://aptus-ai-backend.vercel.app/api/v1"
         theme="aptus"
         wantToShowSuggestions={true}
       />
