@@ -1,5 +1,5 @@
 {
-  "name": "aptus-widget",
+  "name": "aptus-ai-chatbot",
   "version": "1.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
