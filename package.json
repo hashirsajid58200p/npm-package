@@ -30,12 +30,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hashirsajid58200p/Aptus-AI.git"
+    "url": "git+https://github.com/hashirsajid58200p/aptus-ai-chatbot-widget.git"
   },
   "bugs": {
-    "url": "https://github.com/hashirsajid58200p/Aptus-AI/issues"
+    "url": "https://github.com/hashirsajid58200p/aptus-ai-chatbot-widget/issues"
   },
-  "homepage": "https://github.com/hashirsajid58200p/Aptus-AI#readme",
+  "homepage": "https://github.com/hashirsajid58200p/aptus-ai-chatbot-widget#readme",
   "author": "Hashir Sajid",
   "license": "MIT",
   "dependencies": {
