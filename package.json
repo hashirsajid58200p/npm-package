@@ -1,6 +1,6 @@
 {
   "name": "aptus-ai-chatbot-widget",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A customizable, themeable, secure React AI Chatbot widget component for business websites.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -26,7 +26,8 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "bundle": "tsup src/index.ts"
+    "bundle": "tsup src/index.ts",
+    "prepublishOnly": "npm run bundle"
   },
   "repository": {
     "type": "git",
