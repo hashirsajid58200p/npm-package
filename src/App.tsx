@@ -200,6 +200,7 @@ const App: React.FC<AppProps> = ({
             position={position}
             wantToShowSuggestions={wantToShowSuggestions}
             apiUrl={apiUrl}
+            token={token}
             borderRadius={borderRadius}
             toggleBtnRadius={toggleBtnRadius}
             fontFamily={fontFamily}

@@ -3,19 +3,19 @@ import axios from "axios";
 const generateSession = async ({
   email,
   username,
-  chatbotId,
+  token,
   apiUrl,
 }: {
   email: string;
   username: string;
-  chatbotId: string;
+  token: string;
   apiUrl: string;
 }) => {
   try {
     const response = await axios.post(`${apiUrl}/session/create`, {
       email,
       username,
-      chatbotId,
+      token,
     });
 
     return response.data;

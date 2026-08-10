@@ -36,6 +36,7 @@ interface ChatbotProps {
   position?: "left" | "right";
   wantToShowSuggestions?: boolean;
   apiUrl: string;
+  token: string;
   borderRadius?: string | number;
   toggleBtnRadius?: string | number;
   fontFamily?: string;
@@ -46,6 +47,7 @@ const Chatbot: React.FC<ChatbotProps> = ({
   theme = "aptus",
   wantToShowSuggestions = false,
   apiUrl,
+  token,
   borderRadius,
   toggleBtnRadius,
   fontFamily,
@@ -121,7 +123,7 @@ const Chatbot: React.FC<ChatbotProps> = ({
           messages: backendHistory,
           message: temp,
           session_id: session.sessionId,
-          chatbot_id: chatbotDetails.id
+          token: token
         });
 
         if (!res.data.success) {
@@ -178,7 +180,7 @@ const Chatbot: React.FC<ChatbotProps> = ({
         const response = await generateSession({
           email,
           username: name,
-          chatbotId: chatbotDetails.id,
+          token,
           apiUrl,
         });
 
