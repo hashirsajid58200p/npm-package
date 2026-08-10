@@ -138,6 +138,20 @@ const Loader = styled.div<{ $config: ThemeConfig }>`
   margin: 200px auto;
 `;
 
+const ErrorContainer = styled.div<{ $config: ThemeConfig }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: #d32f2f;
+  font-weight: 600;
+  font-size: 0.9em;
+  line-height: 1.5;
+`;
+
 const App: React.FC<AppProps> = ({
   icon,
   toggleBtnBgColor = '',
@@ -154,20 +168,27 @@ const App: React.FC<AppProps> = ({
 }) => {
   const [show, setShow] = useState(false);
   const [chatbotDetails, setChatbotDetails] = useState<ChatbotDetails | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const themeConfig = getThemeConfig(theme, borderRadius, toggleBtnRadius, fontFamily);
 
   useEffect(() => {
     const fetchChatbotDetails = async () => {
       try {
+        setErrorMessage(null);
         const details = await getChatbotDetails(token, apiUrl);
-        setChatbotDetails(details);
-      } catch (error) {
-        console.error(error);
+        if (details) {
+          setChatbotDetails(details);
+        } else {
+          setErrorMessage("Failed to load chatbot details");
+        }
+      } catch (error: any) {
+        console.error("Error fetching chatbot details:", error);
+        setErrorMessage(error?.response?.data?.message || error?.message || "Invalid token or network error");
       }
     };
 
-    if (apiUrl) {
+    if (apiUrl && token) {
       fetchChatbotDetails();
     }
   }, [token, apiUrl]);
@@ -205,6 +226,10 @@ const App: React.FC<AppProps> = ({
             toggleBtnRadius={toggleBtnRadius}
             fontFamily={fontFamily}
           />
+        ) : errorMessage ? (
+          <ErrorContainer $config={themeConfig}>
+            <span>⚠️ {errorMessage}</span>
+          </ErrorContainer>
         ) : (
           <Loader $config={themeConfig} />
         )}
