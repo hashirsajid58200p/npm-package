@@ -2,14 +2,15 @@ import axios from "axios";
 
 const generateSugesstions = async (
   bussinessDetails: string,
-  apiUrl: string
+  apiUrl: string,
+  token: string
 ): Promise<string[]> => {
   try {
     const prompt = `Based on this business info: "${bussinessDetails}"
 
 Generate exactly 4 short customer questions (each under 40 characters). Return only the questions, one per line:`;
 
-    const res = await axios.post(`${apiUrl}/chatbot/generate`, { prompt });
+    const res = await axios.post(`${apiUrl}/chatbot/generate`, { prompt, token });
 
     if (res.data.success && res.data.data) {
       const suggestions = res.data.data

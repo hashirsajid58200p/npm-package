@@ -203,7 +203,7 @@ const Chatbot: React.FC<ChatbotProps> = ({
   useEffect(() => {
     const getSugesstionsList = async () => {
       if (wantToShowSuggestions && showSuggestions) {
-        const suggestionsList = await generateSugesstions(bussinessDetails, apiUrl);
+        const suggestionsList = await generateSugesstions(bussinessDetails, apiUrl, token);
         setSuggestions(suggestionsList);
       }
     };
