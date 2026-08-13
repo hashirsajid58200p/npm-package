@@ -76,8 +76,9 @@ Pass any of the following 14 built-in theme presets into the `theme` prop:
 | `theme` | `string` | `"aptus"` | Select one of the 14 built-in theme presets listed above. |
 | `borderRadius` | `string` \| `number` | *Theme Default* | Custom border radius for the window, input boxes, and message bubbles (e.g., `'16px'` or `12`). |
 | `toggleBtnRadius` | `string` \| `number` | *Theme Default* | Custom border radius for the floating launcher toggle button (e.g., `'50%'` or `'8px'`). |
-| `toggleBtncolor` | `string` | *Theme Default* | Custom icon color of the floating launcher button. |
+| `toggleBtnColor` | `string` | *Theme Default* | Custom icon color of the floating launcher button. |
 | `toggleBtnBgColor` | `string` | *Theme Default* | Custom background color of the floating launcher button. |
+| `fontFamily` | `string` | *Theme Default* | Custom font-family applied specifically to the ChatBot widget UI. |
 | `icon` | `ReactNode` | `LauncherIcon` | Custom icon for the closed floating button state. |
 | `position` | `'left'` \| `'right'` | `'right'` | Floating widget placement on the viewport. |
 | `animate` | `boolean` | `true` | Enables subtle bounce animation on the closed launcher button. |
