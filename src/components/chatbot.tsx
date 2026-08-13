@@ -209,7 +209,7 @@ const Chatbot: React.FC<ChatbotProps> = ({
     };
 
     getSugesstionsList();
-  }, [wantToShowSuggestions, showSuggestions, bussinessDetails, apiUrl]);
+  }, [wantToShowSuggestions, showSuggestions, bussinessDetails, apiUrl, token]);
 
   const handleSugesstionClick = async (sugg: string) => {
     if (loading) return;

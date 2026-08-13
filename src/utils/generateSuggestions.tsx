@@ -17,7 +17,7 @@ Generate exactly 4 short customer questions (each under 40 characters). Return o
         .split('\n')
         .map((s: string) => s.trim())
         .filter((s: string) => s.length > 5 && s.length < 50)
-        .map((s: string) => s.replace(/^\d+[\.\)\-\s]*/, ''))
+        .map((s: string) => s.replace(/^\d+[.)\-\s]*/, ''))
         .filter((s: string) => s.includes('?') || s.toLowerCase().includes('what') || s.toLowerCase().includes('how'))
         .slice(0, 4);
 

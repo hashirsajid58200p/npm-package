@@ -111,6 +111,8 @@ const ChatbotWrapper = styled.div<{ $show: boolean; $position: string; $config: 
   bottom: 96px;
   width: 360px;
   height: 520px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 110px);
   background-color: ${({ $config }) => $config.containerBg};
   border-radius: ${({ $config }) => $config.wrapperRadius};
   border: ${({ $config }) => $config.wrapperBorder || 'none'};
@@ -121,8 +123,10 @@ const ChatbotWrapper = styled.div<{ $show: boolean; $position: string; $config: 
   overflow: hidden;
 
   @media (max-width: 768px) {
-    width: 330px;
-    height: 80%;
+    width: 340px;
+    height: 500px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 100px);
     bottom: 90px;
   }
 `;
@@ -182,6 +186,7 @@ const App: React.FC<AppProps> = ({
         } else {
           setErrorMessage("Failed to load chatbot details");
         }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("Error fetching chatbot details:", error);
         setErrorMessage(error?.response?.data?.message || error?.message || "Invalid token or network error");
