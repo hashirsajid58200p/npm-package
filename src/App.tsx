@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { AiOutlineClose } from 'react-icons/ai';
+import { AiOutlineClose, AiOutlineWarning } from 'react-icons/ai';
 import { TbMessageChatbot } from 'react-icons/tb';
 import styled, { keyframes } from 'styled-components';
 import Chatbot from './components/chatbot';
@@ -228,7 +228,9 @@ const App: React.FC<AppProps> = ({
           />
         ) : errorMessage ? (
           <ErrorContainer $config={themeConfig}>
-            <span>⚠️ {errorMessage}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+              <AiOutlineWarning size={20} /> {errorMessage}
+            </span>
           </ErrorContainer>
         ) : (
           <Loader $config={themeConfig} />
